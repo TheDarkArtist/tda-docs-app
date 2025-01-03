@@ -1,15 +1,21 @@
 import Link from "next/link";
+import { Navbar } from "./navbar";
 
 const Home = () => {
   return (
-    <div className="h-screen flex flex-col gap-y-2 justify-center items-center">
-      <p className="text-3xl">hello world</p>
-      <Link
-        className="text-blue-600"
-        href="/docs/123"
-      >
-        go to /docs/123
-      </Link>
+    <div className="min-h-screen flex flex-col">
+      <div className="fixed top-0 left-0 right-0 z-10 h-16 bg-white p-4">
+        <Navbar />
+      </div>
+      <div className="mt-16">
+        Click
+        <Link
+          className="text-blue-600"
+          href="/docs/123"
+        >
+          go to /docs/123
+        </Link>
+      </div>
     </div>
   );
 };
