@@ -9,9 +9,26 @@ import {
 } from "@/components/ui/carousel";
 import { templates } from "@/data/templates";
 import { cn } from "@/lib/utils";
+import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { api } from "../../../convex/_generated/api";
+import { useState } from "react";
 
 export const TemplateGallery = () => {
-  const isCreating = false;
+  const router = useRouter();
+  const createDocument = useMutation(api.documents.createDocument);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const onTemplateClick = (title: string, initialContent: string) => {
+    setIsCreating(true);
+    createDocument({ title, initialContent })
+      .then((documentId) => {
+        router.push(`/docs/${documentId}`);
+      })
+      .finally(() => {
+        setIsCreating(false);
+      });
+  };
 
   return (
     <div className="bg-neutral-100">
@@ -40,7 +57,7 @@ export const TemplateGallery = () => {
                       backgroundRepeat: "no-repeat",
                     }}
                     disabled={isCreating}
-                    onClick={() => {}}
+                    onClick={() => onTemplateClick(label, "")} // TODO: Add initialContent
                   />
                   <p className="text-sm font-medium truncate">{label}</p>
                 </div>
