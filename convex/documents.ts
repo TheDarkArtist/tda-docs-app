@@ -74,12 +74,22 @@ export const updateDocumentById = mutation({
 export const getDocuments = query({
   args: {
     paginationOpts: paginationOptsValidator,
+    search: v.optional(v.string()),
   },
-  handler: async (ctx, { paginationOpts }) => {
+  handler: async (ctx, { search, paginationOpts }) => {
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
       throw new ConvexError("Unauthorized");
+    }
+
+    if (search) {
+      return await ctx.db
+        .query("documents")
+        .withSearchIndex("search_title", (q) =>
+          q.search("title", search).eq("ownerId", user.subject),
+        )
+        .paginate(paginationOpts);
     }
 
     return await ctx.db
