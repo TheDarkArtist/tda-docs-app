@@ -15,6 +15,7 @@ import {
 } from "./ui/alert-dialog";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface RemoveDialogProps {
   documentId: Id<"documents">;
@@ -24,6 +25,7 @@ interface RemoveDialogProps {
 export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
   const removeDocument = useMutation(api.documents.removeDocumentById);
   const [isRemoving, setIsRemoving] = useState(false);
+  const { toast } = useToast();
 
   return (
     <AlertDialog>
@@ -51,9 +53,21 @@ export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
             onClick={(e) => {
               e.stopPropagation();
               setIsRemoving(true);
-              removeDocument({ id: documentId }).finally(() =>
-                setIsRemoving(false),
-              );
+              removeDocument({ id: documentId })
+                .then(() => {
+                  toast({
+                    title: "Success",
+                    description: "Document removed",
+                  });
+                })
+                .catch(() => {
+                  toast({
+                    title: "Error",
+                    description: "Something went wrong",
+                    variant: "destructive",
+                  });
+                })
+                .finally(() => setIsRemoving(false));
             }}
             disabled={isRemoving}
           >
