@@ -25,7 +25,7 @@ export const DocumentsTable = ({
 }: DocumentsTableProps) => {
   return (
     <div className="max-w-screen-xl mx-auto px-16 py-6 flex flex-col gap-5">
-      {documents === "undefined" ? (
+      {documents === undefined ? (
         <div className="flex justify-center items-center h-24">
           <LoaderIcon className="size-6 text-neutral-600 animate-spin" />
         </div>
