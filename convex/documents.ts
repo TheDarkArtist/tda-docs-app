@@ -1,7 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
-import { title } from "process";
 
 export const createDocument = mutation({
   args: {
@@ -15,9 +14,14 @@ export const createDocument = mutation({
       throw new ConvexError("Unauthorized");
     }
 
+    const organizationId = (user.organization_id ?? undefined) as
+      | string
+      | undefined;
+
     return await ctx.db.insert("documents", {
       title: args.title ?? "Untitled Document",
       ownerId: user.subject,
+      organizationId,
       initialContent: args.initialContent,
     });
   },
@@ -31,6 +35,10 @@ export const removeDocumentById = mutation({
       throw new ConvexError("Unauthorized");
     }
 
+    const organizationId = (user.organization_id ?? undefined) as
+      | string
+      | undefined;
+
     const document = await ctx.db.get(args.id);
 
     if (!document) {
@@ -38,8 +46,9 @@ export const removeDocumentById = mutation({
     }
 
     const isOwner = document.ownerId === user.subject;
+    const organizationMember = document.organizationId === organizationId;
 
-    if (!isOwner) {
+    if (!isOwner && !organizationMember) {
       throw new ConvexError("Unauthorized");
     }
 
@@ -55,6 +64,10 @@ export const updateDocumentById = mutation({
       throw new ConvexError("Unauthorized");
     }
 
+    const organizationId = (user.organization_id ?? undefined) as
+      | string
+      | undefined;
+
     const document = await ctx.db.get(args.id);
 
     if (!document) {
@@ -62,8 +75,9 @@ export const updateDocumentById = mutation({
     }
 
     const isOwner = document.ownerId === user.subject;
+    const organizationMember = document.organizationId === organizationId;
 
-    if (!isOwner) {
+    if (!isOwner && !organizationMember) {
       throw new ConvexError("Unauthorized");
     }
 
@@ -83,11 +97,33 @@ export const getDocuments = query({
       throw new ConvexError("Unauthorized");
     }
 
+    const organizationId = (user.organization_id ?? undefined) as
+      | string
+      | undefined;
+
+    if (search && organizationId) {
+      return await ctx.db
+        .query("documents")
+        .withSearchIndex("search_title", (q) =>
+          q.search("title", search).eq("organizationId", organizationId),
+        )
+        .paginate(paginationOpts);
+    }
+
     if (search) {
       return await ctx.db
         .query("documents")
         .withSearchIndex("search_title", (q) =>
           q.search("title", search).eq("ownerId", user.subject),
+        )
+        .paginate(paginationOpts);
+    }
+
+    if (organizationId) {
+      return await ctx.db
+        .query("documents")
+        .withIndex("by_organization_id", (q) =>
+          q.eq("organizationId", organizationId),
         )
         .paginate(paginationOpts);
     }
