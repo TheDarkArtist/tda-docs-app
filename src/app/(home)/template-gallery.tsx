@@ -50,7 +50,7 @@ export const TemplateGallery = () => {
         <Carousel>
           <CarouselPrevious />
           <CarouselContent className="-ml-4">
-            {templates.map(({ id, label, imageUrl }) => (
+            {templates.map(({ id, label, imageUrl, initialContent }) => (
               <CarouselItem
                 key={id}
                 className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 2xl:basis-[14.285714%] pl-4"
@@ -70,7 +70,7 @@ export const TemplateGallery = () => {
                       backgroundRepeat: "no-repeat",
                     }}
                     disabled={isCreating}
-                    onClick={() => onTemplateClick(label, "")} // TODO: Add initialContent
+                    onClick={() => onTemplateClick(label, initialContent)}
                   />
                   <p className="text-sm font-medium truncate">{label}</p>
                 </div>
