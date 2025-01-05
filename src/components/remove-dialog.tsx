@@ -16,7 +16,6 @@ import {
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
 interface RemoveDialogProps {
   documentId: Id<"documents">;
@@ -26,7 +25,6 @@ interface RemoveDialogProps {
 export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
   const removeDocument = useMutation(api.documents.removeDocumentById);
   const [isRemoving, setIsRemoving] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
 
   return (
