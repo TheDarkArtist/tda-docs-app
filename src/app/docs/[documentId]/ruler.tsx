@@ -1,3 +1,4 @@
+import { useMutation, useStorage } from "@liveblocks/react";
 import { MouseEvent, useRef, useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
 
@@ -12,8 +13,16 @@ interface MarkerProps {
 }
 
 export const Ruler = () => {
-  const [leftMargin, setLeftMargin] = useState(0);
-  const [rightMargin, setRightMargin] = useState(0);
+  const leftMargin = useStorage((root) => root.leftMargin) ?? 56;
+  const setLeftMargin = useMutation(({ storage }, position: number) => {
+    storage.set("leftMargin", position);
+  }, []);
+
+  const rightMargin = useStorage((root) => root.rightMargin) ?? 56;
+  const setRightMargin = useMutation(({ storage }, position: number) => {
+    storage.set("rightMargin", position);
+  }, []);
+
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
 
@@ -24,7 +33,7 @@ export const Ruler = () => {
   };
 
   const handleRightMouseDown = () => {
-    setIsDraggingRight(true); // Fixed here
+    setIsDraggingRight(true);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -139,7 +148,7 @@ const Marker = ({
 }: MarkerProps) => {
   return (
     <div
-      className="absolute top-0 w-4 h-full cursor-ew-resize z-[5] group ml-2"
+      className="absolute top-0 w-4 h-full cursor-ew-resize z-[5] group -ml-2"
       style={{ [isLeft ? "left" : "right"]: `${position}px` }}
       onMouseDown={onMouseDown}
       onDoubleClick={onDoubleClick}
@@ -150,7 +159,7 @@ const Marker = ({
         style={{
           height: "100vh",
           width: "1px",
-          transform: "scaleX(0.5)",
+          transform: "scaleX(0.05)",
           backgroundColor: "#3b72f6",
           display: isDragging ? "block" : "none",
         }}
